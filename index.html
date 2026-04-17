@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rotina B2B Aço Pro</title>
+  <style>
+    :root {
+      --bg: #0b0b0d;
+      --panel: #141419;
+      --panel-2: #1b1b22;
+      --line: #2a2a34;
+      --text: #f5f7fb;
+      --muted: #a4adbd;
+      --red: #e11919;
+      --red-2: #ff3b3b;
+      --green: #18d48f;
+      --yellow: #ffb020;
+      --shadow: 0 14px 40px rgba(0,0,0,.35);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top right, rgba(225,25,25,.16), transparent 22%),
+        linear-gradient(180deg, #0b0b0d 0%, #101015 100%);
+      color: var(--text);
+      font-family: Inter, Arial, sans-serif;
+      min-height: 100%;
+    }
+
+    .app { max-width: 1120px; margin: 0 auto; padding: 18px 16px 40px; }
+    .hero {
+      position: sticky; top: 0; z-index: 20;
+      backdrop-filter: blur(10px);
+      background: rgba(11,11,13,.78);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      margin: 0 -16px 18px; padding: 16px;
+    }
+    .hero-card {
+      max-width: 1120px; margin: 0 auto;
+      display: grid; gap: 14px; grid-template-columns: 1.4fr .9fr; align-items: center;
+    }
+    .title-box {
+      background: linear-gradient(145deg, rgba(255,59,59,.15), rgba(255,59,59,.03));
+      border: 1px solid rgba(255,59,59,.18);
+      border-radius: 24px; padding: 18px; box-shadow: var(--shadow);
+    }
+
+    .kicker {
+      display: inline-flex; gap: 8px; align-items: center;
+      padding: 8px 12px; border-radius: 999px;
+      background: rgba(255,59,59,.12); color: #ffd8d8;
+      font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 { margin: 0 0 6px; font-size: clamp(28px, 4vw, 42px); line-height: 1.02; }
+    .subtitle { color: var(--muted); font-size: 15px; line-height: 1.5; margin: 0; }
+
+    .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .stat {
+      background: linear-gradient(145deg, var(--panel), var(--panel-2));
+      border: 1px solid rgba(255,255,255,.05); border-radius: 22px;
+      padding: 16px; box-shadow: var(--shadow); min-height: 96px;
+    }
+    .stat small { color: var(--muted); display: block; margin-bottom: 8px; }
+    .stat strong { font-size: 28px; }
+
+    .tabs { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0 18px; }
+    .tab {
+      border: 1px solid rgba(255,255,255,.06); background: var(--panel);
+      color: var(--text); padding: 12px 16px; border-radius: 14px;
+      cursor: pointer; transition: .2s ease; font-weight: 700;
+    }
+    .tab.active, .tab:hover {
+      background: linear-gradient(145deg, var(--red), var(--red-2));
+      border-color: transparent; transform: translateY(-1px);
+    }
+
+    .view { display: none; }
+    .view.active { display: block; animation: fade .25s ease; }
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
+    .card {
+      background: linear-gradient(145deg, var(--panel), var(--panel-2));
+      border: 1px solid rgba(255,255,255,.05); border-radius: var(--radius);
+      padding: 18px; box-shadow: var(--shadow);
+    }
+
+    .card h2, .card h3 { margin: 0 0 12px; letter-spacing: -.02em; }
+    .muted { color: var(--muted); }
+
+    .routine-grid { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .block {
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05);
+      border-radius: 20px; padding: 16px; position: relative; overflow: hidden;
+    }
+    .block::after {
+      content: ""; position: absolute; inset: auto -20% -60% auto;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(255,59,59,.17), transparent 64%);
+      pointer-events: none;
+    }
+
+    .tag {
+      display: inline-flex; gap: 8px; align-items: center;
+      font-size: 12px; background: rgba(24,212,143,.12); color: #b9ffe4;
+      padding: 7px 10px; border-radius: 999px; margin-bottom: 10px; font-weight: 700;
+    }
+
+    .progress {
+      height: 10px; background: #262631; border-radius: 999px;
+      overflow: hidden; margin: 12px 0 8px;
+    }
+    .progress-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--green), #50f0b5);
+      transition: width .22s ease;
+    }
+
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn, .input, .textarea {
+      border-radius: 14px; border: 1px solid rgba(255,255,255,.08);
+      background: #101018; color: var(--text); padding: 12px 14px; font: inherit; outline: none;
+    }
+
+    .btn {
+      cursor: pointer; font-weight: 800; transition: .2s ease;
+      background: linear-gradient(145deg, var(--red), var(--red-2));
+      border: 0; box-shadow: 0 8px 24px rgba(225,25,25,.22);
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.ghost {
+      background: #191922; color: var(--text);
+      border: 1px solid rgba(255,255,255,.08); box-shadow: none;
+    }
+    .btn.green {
+      background: linear-gradient(145deg, #0ea971, #18d48f);
+      box-shadow: 0 8px 24px rgba(24,212,143,.2);
+    }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 12px; border-radius: 999px;
+      background: rgba(255,255,255,.05); color: var(--muted);
+      font-size: 13px; margin-right: 8px; margin-top: 8px;
+    }
+
+    .script-box {
+      background: #0f1016; border: 1px solid rgba(255,255,255,.06);
+      border-radius: 18px; padding: 14px; white-space: pre-wrap; line-height: 1.5; color: #e8edf8;
+    }
+
+    .textarea { width: 100%; min-height: 120px; resize: vertical; }
+    .input { width: 100%; }
+
+    .lead-form, .notes-grid, .filter-grid {
+      display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .lead-form .full, .notes-grid .full, .filter-grid .full { grid-column: 1 / -1; }
+
+    .lead-list { display: grid; gap: 10px; margin-top: 12px; }
+    .lead-item {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 18px; padding: 14px; display: grid; gap: 10px;
+    }
+    .lead-item.overdue { border-color: rgba(255,59,59,.75); background: rgba(255,59,59,.08); }
+    .lead-item.today { border-color: rgba(255,176,32,.75); background: rgba(255,176,32,.08); }
+
+    .lead-top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .lead-name { font-weight: 800; font-size: 16px; }
+    .badge {
+      font-size: 12px; padding: 7px 10px; border-radius: 999px; font-weight: 800;
+    }
+    .badge.a { background: rgba(24,212,143,.14); color: #b9ffe4; }
+    .badge.b { background: rgba(255,176,32,.14); color: #ffe1a0; }
+    .badge.c { background: rgba(255,59,59,.14); color: #ffd2d2; }
+    .badge.status { background: rgba(80, 130, 255, .18); color: #cfe1ff; }
+
+    .mini { color: var(--muted); font-size: 13px; }
+
+    .checklist { display: grid; gap: 10px; margin-top: 12px; }
+    .check {
+      display: flex; gap: 12px; align-items: center; padding: 12px 14px;
+      border-radius: 14px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05);
+    }
+
+    .timer {
+      font-size: clamp(40px, 6vw, 64px);
+      font-weight: 900; letter-spacing: -.04em; text-align: center; margin: 6px 0 10px;
+    }
+
+    .rule {
+      margin-top: 12px;
+      background: linear-gradient(145deg, rgba(225,25,25,.18), rgba(225,25,25,.08));
+      border: 1px solid rgba(255,59,59,.14); padding: 14px; border-radius: 16px; font-weight: 800;
+    }
+
+    .footer-note { margin-top: 16px; color: var(--muted); text-align: center; font-size: 13px; }
+
+    @media (max-width: 900px) {
+      .hero-card, .grid, .routine-grid, .lead-form, .notes-grid, .filter-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 560px) {
+      .stats { grid-template-columns: 1fr; }
+      .app { padding: 14px 12px 34px; }
+      .hero { margin: 0 -12px 14px; padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="hero-card">
+      <div class="title-box">
+        <div class="kicker">⚔️ rotina diária · venda b2b aço</div>
+        <h1>Modo App Profissional</h1>
+        <p class="subtitle">Controle ligações, Whats, follow-up, scripts e leads num só lugar. Tudo salva sozinho no navegador.</p>
+      </div>
+      <div class="stats">
+        <div class="stat"><small>Progresso do dia</small><strong id="statPercent">0%</strong></div>
+        <div class="stat"><small>Conversas boas</small><strong id="statConvs">0</strong></div>
+        <div class="stat"><small>Leads salvos</small><strong id="statLeads">0</strong></div>
+        <div class="stat"><small>Foco acumulado</small><strong id="statFocus">00:00</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app">
+    <div class="tabs">
+      <button class="tab active" data-view="painel">Painel</button>
+      <button class="tab" data-view="scripts">Scripts</button>
+      <button class="tab" data-view="leads">Leads</button>
+      <button class="tab" data-view="anotacoes">Anotações</button>
+    </div>
+
+    <section class="view active" id="painel">
+      <div class="grid">
+        <div class="card">
+          <h2>Execução do dia</h2>
+          <p class="muted">Vai clicando conforme rodar tua rotina. Meta realista: <strong>10 ligações + 10 Whats + 10 follow-up = 2 conversas boas</strong>.</p>
+          <div class="routine-grid">
+            <div class="block">
+              <div class="tag">⏰ 08:00 às 10:00</div>
+              <h3>BLOCO 1 — ATAQUE FRIO</h3>
+              <div class="muted">Meta: 10 ligações · 5 contatos válidos</div>
+              <div class="progress"><div class="progress-bar" id="barCalls"></div></div>
+              <div class="row">
+                <button class="btn" onclick="increment('calls',10)">+1 Ligação</button>
+                <button class="btn ghost" onclick="decrement('calls',10)">-1</button>
+                <span class="pill">Feito: <strong id="callsCount">0</strong>/10</span>
+              </div>
+            </div>
+            <div class="block">
+              <div class="tag">💬 10:00 às 11:30</div>
+              <h3>BLOCO 2 — WHATS CERTO</h3>
+              <div class="muted">Meta: 10 mensagens · 3 respostas</div>
+              <div class="progress"><div class="progress-bar" id="barMsgs"></div></div>
+              <div class="row">
+                <button class="btn" onclick="increment('msgs',10)">+1 Whats</button>
+                <button class="btn ghost" onclick="decrement('msgs',10)">-1</button>
+                <span class="pill">Feito: <strong id="msgsCount">0</strong>/10</span>
+              </div>
+            </div>
+            <div class="block">
+              <div class="tag">🔁 13:30 às 15:00</div>
+              <h3>BLOCO 3 — FOLLOW-UP</h3>
+              <div class="muted">Meta: 10 follow-ups · reativar 2 ou 3</div>
+              <div class="progress"><div class="progress-bar" id="barFups"></div></div>
+              <div class="row">
+                <button class="btn" onclick="increment('fups',10)">+1 Follow-up</button>
+                <button class="btn ghost" onclick="decrement('fups',10)">-1</button>
+                <span class="pill">Feito: <strong id="fupsCount">0</strong>/10</span>
+              </div>
+            </div>
+            <div class="block">
+              <div class="tag">🔥 15:00 às 17:30</div>
+              <h3>BLOCO 4 — CONVERSÃO</h3>
+              <div class="muted">Meta: 2 conversas boas por dia</div>
+              <div class="progress"><div class="progress-bar" id="barConvs"></div></div>
+              <div class="row">
+                <button class="btn green" onclick="increment('convs',2)">+1 Conversa boa</button>
+                <button class="btn ghost" onclick="decrement('convs',2)">-1</button>
+                <span class="pill">Feito: <strong id="convsCount">0</strong>/2</span>
+              </div>
+            </div>
+          </div>
+          <div class="rule">🔥 REGRA DE OURO: nunca vender no primeiro contato. Sempre puxar conversa primeiro.</div>
+        </div>
+
+        <div class="card">
+          <h2>Timer de foco</h2>
+          <p class="muted">Abre no início do bloco e deixa rolando.</p>
+          <div class="timer" id="timer">00:00</div>
+          <div class="row">
+            <button class="btn" onclick="startTimer()">Iniciar</button>
+            <button class="btn ghost" onclick="pauseTimer()">Pausar</button>
+            <button class="btn ghost" onclick="resetTimer()">Zerar</button>
+          </div>
+          <h3 style="margin-top:18px;">Checklist</h3>
+          <div class="checklist">
+            <label class="check"><input type="checkbox" data-check="1"> Fiz as ligações do dia</label>
+            <label class="check"><input type="checkbox" data-check="2"> Enviei os Whats certos</label>
+            <label class="check"><input type="checkbox" data-check="3"> Fiz follow-up sem insistir errado</label>
+            <label class="check"><input type="checkbox" data-check="4"> Tive pelo menos 2 conversas boas</label>
+          </div>
+          <div class="row" style="margin-top:16px;">
+            <button class="btn ghost" onclick="resetDay()">Resetar dia</button>
+            <button class="btn ghost" onclick="exportBackup()">Backup</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="scripts">
+      <div class="grid">
+        <div class="card">
+          <h2>Scripts prontos</h2>
+          <p class="muted">Copia e usa sem parecer vendedor chato.</p>
+          <h3>📞 Ligação</h3>
+          <div class="script-box" id="script-call">Bom dia, tudo bem?
+Me diz uma coisa rapidinho… quem costuma cuidar da compra de material aí? (chapa, tubo, essas coisas)
+
+Se transferir:
+Perfeito 👍
+
+Se não:
+Consegue me passar o nome e um contato? Vou falar direto com ele pra não tomar tempo de vocês.</div>
+          <div class="row" style="margin-top:10px;"><button class="btn" onclick="copyText('script-call')">Copiar ligação</button></div>
+          <h3 style="margin-top:18px;">💬 WhatsApp</h3>
+          <div class="script-box" id="script-wpp">Fala [Nome], tudo bem?
+Peguei teu contato com a [empresa] agora pouco 👍
+
+Trabalho com fornecimento de aço aqui na região (chapas, tubos e perfis já cortados e prontos pra uso).
+
+Queria entender contigo: vocês compram esse tipo de material com frequência?</div>
+          <div class="row" style="margin-top:10px;"><button class="btn" onclick="copyText('script-wpp')">Copiar Whats</button></div>
+          <h3 style="margin-top:18px;">🔁 Follow-up</h3>
+          <div class="script-box" id="script-fup">Fala [Nome], passando pra ver se conseguiu dar uma olhada 👍
+Se não for o momento agora, tranquilo — posso me deixar como fornecedor pra quando precisarem.</div>
+          <div class="row" style="margin-top:10px;"><button class="btn" onclick="copyText('script-fup')">Copiar follow-up</button></div>
+          <h3 style="margin-top:18px;">🔥 Avanço</h3>
+          <div class="script-box" id="script-advance">Top 👍
+Hoje vocês compram mais chapa, tubo ou perfil?
+
+Se fizer sentido, posso montar uma cotação base pra você já ter como referência.</div>
+          <div class="row" style="margin-top:10px;"><button class="btn" onclick="copyText('script-advance')">Copiar avanço</button></div>
+        </div>
+
+        <div class="card">
+          <h2>Erros que você não vai mais cometer</h2>
+          <div class="pill">❌ texto gigante</div>
+          <div class="pill">❌ falar preço sem contexto</div>
+          <div class="pill">❌ mandar “somos fornecedores...”</div>
+          <div class="pill">❌ insistir sem resposta</div>
+          <h3 style="margin-top:18px;">Detalhe que muda tudo</h3>
+          <div class="script-box">Quando você fala “queria entender”, você vira parceiro — não vendedor chato.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="leads">
+      <div class="grid">
+        <div class="card">
+          <h2 id="leadFormTitle">Cadastro de leads</h2>
+          <p class="muted">Agora com edição, status, canal e alerta de retorno.</p>
+          <div class="lead-form">
+            <input class="input" id="leadName" placeholder="Nome da empresa" />
+            <input class="input" id="leadCity" placeholder="Cidade" />
+            <input class="input" id="leadSegment" placeholder="Segmento" />
+            <input class="input" id="leadPhone" placeholder="Telefone / Whats" />
+            <select class="input" id="leadPriority">
+              <option value="A">Prioridade A</option>
+              <option value="B">Prioridade B</option>
+              <option value="C">Prioridade C</option>
+            </select>
+            <select class="input" id="leadStatus">
+              <option value="Novo">Novo</option>
+              <option value="Contatado">Contatado</option>
+              <option value="Em conversa">Em conversa</option>
+              <option value="Cotado">Cotado</option>
+              <option value="Follow-up">Follow-up</option>
+              <option value="Fechado">Fechado</option>
+              <option value="Perdido">Perdido</option>
+            </select>
+            <input class="input" id="leadLastContact" type="date" placeholder="Último contato" />
+            <input class="input" id="leadNextDate" type="date" placeholder="Próxima data de retorno" />
+            <select class="input" id="leadChannel">
+              <option value="Ligação">Canal: Ligação</option>
+              <option value="Whats">Canal: Whats</option>
+              <option value="Email">Canal: Email</option>
+            </select>
+            <input class="input" id="leadNext" placeholder="Próxima ação" />
+            <textarea class="textarea full" id="leadObs" placeholder="Observações rápidas"></textarea>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn" id="leadSaveBtn" onclick="saveLead()">Salvar lead</button>
+            <button class="btn ghost" onclick="cancelEdit()">Cancelar edição</button>
+            <button class="btn ghost" onclick="clearLeadForm()">Limpar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Busca e filtros</h2>
+          <div class="filter-grid">
+            <input class="input full" id="filterSearch" placeholder="Buscar por nome da empresa" />
+            <input class="input" id="filterCity" placeholder="Filtrar por cidade" />
+            <input class="input" id="filterSegment" placeholder="Filtrar por segmento" />
+            <select class="input" id="filterPriority">
+              <option value="">Prioridade (todas)</option>
+              <option value="A">Prioridade A</option>
+              <option value="B">Prioridade B</option>
+              <option value="C">Prioridade C</option>
+            </select>
+            <select class="input" id="filterStatus">
+              <option value="">Status (todos)</option>
+              <option value="Novo">Novo</option>
+              <option value="Contatado">Contatado</option>
+              <option value="Em conversa">Em conversa</option>
+              <option value="Cotado">Cotado</option>
+              <option value="Follow-up">Follow-up</option>
+              <option value="Fechado">Fechado</option>
+              <option value="Perdido">Perdido</option>
+            </select>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn ghost" onclick="resetFilters()">Limpar filtros</button>
+          </div>
+          <div class="pill">🔴 Retorno vencido</div>
+          <div class="pill">🟡 Retorno hoje</div>
+          <div class="pill">⚪ Futuro / sem retorno</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="row" style="justify-content: space-between; align-items: center;">
+          <h2>Leads salvos <span class="muted" id="leadCounter"></span></h2>
+          <div class="row">
+            <button class="btn ghost" onclick="exportLeadsJson()">Exportar JSON</button>
+            <button class="btn ghost" onclick="exportLeadsCsv()">Exportar CSV</button>
+            <button class="btn ghost" onclick="triggerImportLeads()">Importar leads</button>
+          </div>
+        </div>
+        <input type="file" id="leadFileInput" accept=".json,.csv,text/csv,application/json" style="display:none" onchange="importLeadsFromFile(event)" />
+        <div class="lead-list" id="leadList"></div>
+      </div>
+    </section>
+
+    <section class="view" id="anotacoes">
+      <div class="grid">
+        <div class="card">
+          <h2>Anotações do dia</h2>
+          <p class="muted">Deixa aqui objeções, nomes, retorno prometido e qualquer detalhe útil.</p>
+          <div class="notes-grid">
+            <textarea class="textarea full" id="dailyNotes" placeholder="Ex.: Compras da empresa X pediu retorno amanhã às 09:30. Empresa Y já compra com concorrente, mas aceitou cotação base."></textarea>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn" onclick="saveNotes()">Salvar anotações</button>
+            <button class="btn ghost" onclick="clearNotes()">Limpar</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Lembrete rápido</h2>
+          <div class="script-box">Você já sabe mapear, calcular e entender produto.
+Agora o foco é: não queimar lead, gerar resposta e construir constância.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">Arquivo local · funciona sem internet · salva no navegador do aparelho</div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'rotina_b2b_aco_pro_v2';
+    let editingLeadId = null;
+    let state = {
+      calls: 0,
+      msgs: 0,
+      fups: 0,
+      convs: 0,
+      leads: [],
+      notes: '',
+      checks: {1:false,2:false,3:false,4:false},
+      timerSeconds: 0,
+      focusTotal: 0
+    };
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          state = { ...state, ...parsed, checks: { ...state.checks, ...(parsed.checks || {}) } };
+        } catch (e) {}
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function updateProgressBar(id, value, max) {
+      const pct = Math.max(0, Math.min(100, (value / max) * 100));
+      document.getElementById(id).style.width = pct + '%';
+    }
+
+    function updateUI() {
+      document.getElementById('callsCount').textContent = state.calls;
+      document.getElementById('msgsCount').textContent = state.msgs;
+      document.getElementById('fupsCount').textContent = state.fups;
+      document.getElementById('convsCount').textContent = state.convs;
+
+      updateProgressBar('barCalls', state.calls, 10);
+      updateProgressBar('barMsgs', state.msgs, 10);
+      updateProgressBar('barFups', state.fups, 10);
+      updateProgressBar('barConvs', state.convs, 2);
+
+      const percent = Math.round((((Math.min(state.calls,10)/10) + (Math.min(state.msgs,10)/10) + (Math.min(state.fups,10)/10) + (Math.min(state.convs,2)/2)) / 4) * 100);
+      document.getElementById('statPercent').textContent = percent + '%';
+      document.getElementById('statConvs').textContent = state.convs;
+      document.getElementById('statLeads').textContent = state.leads.length;
+      document.getElementById('timer').textContent = formatTime(state.timerSeconds);
+      document.getElementById('statFocus').textContent = formatTime(state.focusTotal);
+      document.getElementById('dailyNotes').value = state.notes || '';
+
+      document.querySelectorAll('input[data-check]').forEach(el => {
+        const key = el.getAttribute('data-check');
+        el.checked = !!state.checks[key];
+      });
+
+      renderLeads();
+      saveState();
+    }
+
+    function increment(key, max) {
+      state[key] = Math.min(max, state[key] + 1);
+      updateUI();
+    }
+
+    function decrement(key, max) {
+      state[key] = Math.max(0, state[key] - 1);
+      updateUI();
+    }
+
+    function formatTime(totalSeconds) {
+      const m = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+      const s = String(totalSeconds % 60).padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    let timerRef = null;
+    function startTimer() {
+      if (timerRef) return;
+      timerRef = setInterval(() => {
+        state.timerSeconds += 1;
+        state.focusTotal += 1;
+        updateUI();
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerRef);
+      timerRef = null;
+      saveState();
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      state.timerSeconds = 0;
+      updateUI();
+    }
+
+    function resetDay() {
+      pauseTimer();
+      state.calls = 0;
+      state.msgs = 0;
+      state.fups = 0;
+      state.convs = 0;
+      state.timerSeconds = 0;
+      state.checks = {1:false,2:false,3:false,4:false};
+      updateUI();
+    }
+
+    async function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      try {
+        await navigator.clipboard.writeText(text);
+        alert('Copiado 👊');
+      } catch (e) {
+        alert('Não consegui copiar automático. Seleciona e copia manualmente.');
+      }
+    }
+
+    function getLeadFromForm() {
+      return {
+        id: editingLeadId || Date.now(),
+        name: document.getElementById('leadName').value.trim(),
+        city: document.getElementById('leadCity').value.trim(),
+        segment: document.getElementById('leadSegment').value.trim(),
+        phone: document.getElementById('leadPhone').value.trim(),
+        priority: document.getElementById('leadPriority').value,
+        status: document.getElementById('leadStatus').value,
+        lastContact: document.getElementById('leadLastContact').value,
+        nextDate: document.getElementById('leadNextDate').value,
+        channel: document.getElementById('leadChannel').value,
+        next: document.getElementById('leadNext').value.trim(),
+        obs: document.getElementById('leadObs').value.trim()
+      };
+    }
+
+    function saveLead() {
+      const lead = getLeadFromForm();
+      if (!lead.name) {
+        alert('Coloca pelo menos o nome da empresa.');
+        return;
+      }
+
+      if (editingLeadId) {
+        state.leads = state.leads.map(l => l.id === editingLeadId ? lead : l);
+      } else {
+        state.leads.unshift(lead);
+      }
+
+      cancelEdit(false);
+      clearLeadForm();
+      updateUI();
+    }
+
+    function editLead(id) {
+      const lead = state.leads.find(l => l.id === id);
+      if (!lead) return;
+      editingLeadId = id;
+      document.getElementById('leadFormTitle').textContent = 'Editar lead';
+      document.getElementById('leadSaveBtn').textContent = 'Salvar edição';
+
+      document.getElementById('leadName').value = lead.name || '';
+      document.getElementById('leadCity').value = lead.city || '';
+      document.getElementById('leadSegment').value = lead.segment || '';
+      document.getElementById('leadPhone').value = lead.phone || '';
+      document.getElementById('leadPriority').value = lead.priority || 'A';
+      document.getElementById('leadStatus').value = lead.status || 'Novo';
+      document.getElementById('leadLastContact').value = lead.lastContact || '';
+      document.getElementById('leadNextDate').value = lead.nextDate || '';
+      document.getElementById('leadChannel').value = lead.channel || 'Ligação';
+      document.getElementById('leadNext').value = lead.next || '';
+      document.getElementById('leadObs').value = lead.obs || '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelEdit(clearForm = true) {
+      editingLeadId = null;
+      document.getElementById('leadFormTitle').textContent = 'Cadastro de leads';
+      document.getElementById('leadSaveBtn').textContent = 'Salvar lead';
+      if (clearForm) clearLeadForm();
+    }
+
+    function clearLeadForm() {
+      document.getElementById('leadName').value = '';
+      document.getElementById('leadCity').value = '';
+      document.getElementById('leadSegment').value = '';
+      document.getElementById('leadPhone').value = '';
+      document.getElementById('leadPriority').value = 'A';
+      document.getElementById('leadStatus').value = 'Novo';
+      document.getElementById('leadLastContact').value = '';
+      document.getElementById('leadNextDate').value = '';
+      document.getElementById('leadChannel').value = 'Ligação';
+      document.getElementById('leadNext').value = '';
+      document.getElementById('leadObs').value = '';
+    }
+
+    function deleteLead(id) {
+      state.leads = state.leads.filter(l => l.id !== id);
+      if (editingLeadId === id) cancelEdit();
+      updateUI();
+    }
+
+    function dateState(nextDate) {
+      if (!nextDate) return 'none';
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const target = new Date(nextDate + 'T00:00:00');
+      if (target < today) return 'overdue';
+      if (target.getTime() === today.getTime()) return 'today';
+      return 'future';
+    }
+
+    function getFilteredLeads() {
+      const search = document.getElementById('filterSearch').value.trim().toLowerCase();
+      const city = document.getElementById('filterCity').value.trim().toLowerCase();
+      const segment = document.getElementById('filterSegment').value.trim().toLowerCase();
+      const priority = document.getElementById('filterPriority').value;
+      const status = document.getElementById('filterStatus').value;
+
+      return state.leads.filter(l => {
+        if (search && !String(l.name || '').toLowerCase().includes(search)) return false;
+        if (city && !String(l.city || '').toLowerCase().includes(city)) return false;
+        if (segment && !String(l.segment || '').toLowerCase().includes(segment)) return false;
+        if (priority && l.priority !== priority) return false;
+        if (status && l.status !== status) return false;
+        return true;
+      }).sort((a, b) => {
+        const rank = { A: 0, B: 1, C: 2 };
+        const byPriority = (rank[a.priority] ?? 99) - (rank[b.priority] ?? 99);
+        if (byPriority !== 0) return byPriority;
+        const da = a.nextDate ? new Date(a.nextDate).getTime() : Number.MAX_SAFE_INTEGER;
+        const db = b.nextDate ? new Date(b.nextDate).getTime() : Number.MAX_SAFE_INTEGER;
+        return da - db;
+      });
+    }
+
+    function resetFilters() {
+      document.getElementById('filterSearch').value = '';
+      document.getElementById('filterCity').value = '';
+      document.getElementById('filterSegment').value = '';
+      document.getElementById('filterPriority').value = '';
+      document.getElementById('filterStatus').value = '';
+      renderLeads();
+    }
+
+    function renderLeads() {
+      const list = document.getElementById('leadList');
+      const leads = getFilteredLeads();
+      document.getElementById('leadCounter').textContent = `(${leads.length} exibidos de ${state.leads.length})`;
+
+      if (!leads.length) {
+        list.innerHTML = '<div class="muted">Nenhum lead encontrado para os filtros atuais.</div>';
+        return;
+      }
+
+      list.innerHTML = leads.map(l => {
+        const ds = dateState(l.nextDate);
+        const cls = ds === 'overdue' ? 'overdue' : ds === 'today' ? 'today' : '';
+        const dateHint = ds === 'overdue' ? '🔴 Retorno vencido' : ds === 'today' ? '🟡 Retorno hoje' : '⚪ Sem urgência';
+        return `
+          <div class="lead-item ${cls}">
+            <div class="lead-top">
+              <div>
+                <div class="lead-name">${escapeHtml(l.name)}</div>
+                <div class="mini">${escapeHtml(l.city || 'Sem cidade')} · ${escapeHtml(l.segment || 'Sem segmento')}</div>
+              </div>
+              <div class="row">
+                <span class="badge ${String(l.priority || 'C').toLowerCase()}">Prioridade ${escapeHtml(l.priority || 'C')}</span>
+                <span class="badge status">${escapeHtml(l.status || 'Novo')}</span>
+              </div>
+            </div>
+            <div class="mini">📞 ${escapeHtml(l.phone || 'Sem telefone')} · Canal: ${escapeHtml(l.channel || 'Ligação')}</div>
+            <div class="mini">📅 Último contato: ${escapeHtml(l.lastContact || 'Não informado')}</div>
+            <div class="mini">⏭️ Próximo retorno: ${escapeHtml(l.nextDate || 'Não definido')} · ${dateHint}</div>
+            <div class="mini">➡️ Próxima ação: ${escapeHtml(l.next || 'Não definida')}</div>
+            ${l.obs ? `<div class="mini">📝 ${escapeHtml(l.obs)}</div>` : ''}
+            <div class="row">
+              <button class="btn ghost" onclick="editLead(${l.id})">Editar</button>
+              <button class="btn ghost" onclick="deleteLead(${l.id})">Excluir</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function saveNotes() {
+      state.notes = document.getElementById('dailyNotes').value;
+      updateUI();
+      alert('Anotações salvas 👊');
+    }
+
+    function clearNotes() {
+      state.notes = '';
+      updateUI();
+    }
+
+    function exportBackup() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'backup_rotina_b2b_aco.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportLeadsJson() {
+      const blob = new Blob([JSON.stringify(state.leads, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'leads_rotina_b2b_aco.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportLeadsCsv() {
+      const headers = ['name', 'city', 'segment', 'phone', 'priority', 'status', 'lastContact', 'nextDate', 'channel', 'next', 'obs'];
+      const rows = state.leads.map(l => headers.map(h => csvEscape(l[h] || '')));
+      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'leads_rotina_b2b_aco.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(value) {
+      const text = String(value).replaceAll('\"', '\"\"');
+      return `\"${text}\"`;
+    }
+
+    function triggerImportLeads() {
+      const input = document.getElementById('leadFileInput');
+      input.value = '';
+      input.click();
+    }
+
+    function importLeadsFromFile(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const text = String(e.target?.result || '');
+          const imported = file.name.toLowerCase().endsWith('.csv')
+            ? parseLeadsCsv(text)
+            : parseLeadsJson(text);
+
+          if (!imported.length) {
+            alert('Arquivo sem leads válidos para importar.');
+            return;
+          }
+
+          state.leads = mergeLeads(state.leads, imported);
+          updateUI();
+          alert(`${imported.length} lead(s) processados. Total atual: ${state.leads.length}.`);
+        } catch (err) {
+          alert('Não consegui importar esse arquivo. Verifica se está em JSON ou CSV válido.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function parseLeadsJson(text) {
+      const parsed = JSON.parse(text);
+      const array = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.leads) ? parsed.leads : []);
+      return array.map(normalizeLead).filter(l => l.name);
+    }
+
+    function parseLeadsCsv(text) {
+      const lines = text.split(/\r?\n/).filter(Boolean);
+      if (lines.length < 2) return [];
+      const headers = parseCsvLine(lines[0]).map(h => h.trim());
+      const leads = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCsvLine(lines[i]);
+        if (!cols.length) continue;
+        const obj = {};
+        headers.forEach((h, idx) => obj[h] = cols[idx] || '');
+        const lead = normalizeLead(obj);
+        if (lead.name) leads.push(lead);
+      }
+      return leads;
+    }
+
+    function parseCsvLine(line) {
+      const out = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '\"') {
+          const next = line[i + 1];
+          if (inQuotes && next === '\"') {
+            current += '\"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === ',' && !inQuotes) {
+          out.push(current);
+          current = '';
+        } else {
+          current += ch;
+        }
+      }
+      out.push(current);
+      return out;
+    }
+
+    function normalizeLead(raw) {
+      const priority = ['A', 'B', 'C'].includes(String(raw.priority || '').toUpperCase()) ? String(raw.priority).toUpperCase() : 'A';
+      const validStatuses = ['Novo', 'Contatado', 'Em conversa', 'Cotado', 'Follow-up', 'Fechado', 'Perdido'];
+      const status = validStatuses.includes(raw.status) ? raw.status : 'Novo';
+      const validChannels = ['Ligação', 'Whats', 'Email'];
+      const channel = validChannels.includes(raw.channel) ? raw.channel : 'Ligação';
+
+      return {
+        id: Number(raw.id) || Date.now() + Math.floor(Math.random() * 1000),
+        name: String(raw.name || '').trim(),
+        city: String(raw.city || '').trim(),
+        segment: String(raw.segment || '').trim(),
+        phone: String(raw.phone || '').trim(),
+        priority,
+        status,
+        lastContact: String(raw.lastContact || '').trim(),
+        nextDate: String(raw.nextDate || '').trim(),
+        channel,
+        next: String(raw.next || '').trim(),
+        obs: String(raw.obs || '').trim()
+      };
+    }
+
+    function mergeLeads(current, imported) {
+      const byKey = new Map();
+      const keyOf = l => `${String(l.name || '').toLowerCase()}|${String(l.phone || '').toLowerCase()}`;
+
+      current.forEach(l => byKey.set(keyOf(l), l));
+      imported.forEach(l => byKey.set(keyOf(l), l));
+
+      return Array.from(byKey.values()).sort((a, b) => Number(b.id) - Number(a.id));
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.view).classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('input[data-check]').forEach(el => {
+      el.addEventListener('change', (e) => {
+        const key = e.target.getAttribute('data-check');
+        state.checks[key] = e.target.checked;
+        saveState();
+      });
+    });
+
+    ['filterSearch', 'filterCity', 'filterSegment', 'filterPriority', 'filterStatus'].forEach(id => {
+      document.getElementById(id).addEventListener('input', renderLeads);
+      document.getElementById(id).addEventListener('change', renderLeads);
+    });
+
+    loadState();
+    updateUI();
+  </script>
+</body>
+</html>
